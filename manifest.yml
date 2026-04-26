@@ -1,0 +1,4 @@
+applications:
+  - name: vsphere-vs-harvester
+    buildpacks:
+      - staticfile_buildpack

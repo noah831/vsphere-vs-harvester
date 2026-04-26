@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vSphere vs SUSE Virtualization: Technical Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9; 
+            color: #292524; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .row-hover:hover {
+            background-color: #f5f5f4;
+            cursor: pointer;
+        }
+        .selected-row {
+            background-color: #e6f2f2;
+            border-left: 4px solid #0f766e;
+        }
+        .ai-glow {
+            box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .loading-pulse {
+            animation: pulse-soft 2s infinite;
+        }
+        .btn-active {
+            background-color: white !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            color: #1c1917 !important;
+        }
+        .btn-inactive {
+            background-color: transparent !important;
+            color: #78716c !important;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Warm Neutrals with Teal and Indigo Accents -->
+    <!-- Application Structure Plan: Technical dashboard comparing vSphere and SUSE Virtualization (Harvester). Navigation buttons now correctly show active/inactive states. Headlines updated to reflect the full product name "SUSE Virtualization (Harvester)". -->
+    <!-- Visualization & Content Choices: Radar Chart (Comparison), Table (Granular Details), Gemini AI (Architectural Advice). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-stone-800 tracking-tight">vSphere vs SUSE Virtualization (Harvester)</h1>
+                <p class="text-sm text-stone-500 font-medium">Technical Infrastructure Comparison Matrix</p>
+            </div>
+            <div class="hidden sm:block text-2xl">☁️ ⚡ 🛠️</div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <section id="executive-summary" class="mb-12 bg-white rounded-xl shadow-sm border border-stone-200 p-6 sm:p-8">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4 border-b border-stone-100 pb-2">Architectural Paradigm Shift</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="order-2 lg:order-1">
+                    <p class="text-stone-600 mb-6 leading-relaxed text-sm">
+                        vSphere provides a mature enterprise virtualization foundation with deep legacy support. SUSE Virtualization (Harvester) offers an open-source HCI alternative built directly on Kubernetes, unifying VM and container management for modern DevOps workflows.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
+                            <h3 class="font-semibold text-indigo-900 flex items-center gap-2 text-sm">🏢 VMware vSphere</h3>
+                            <p class="text-[13px] text-indigo-800 mt-1">Proprietary ESXi hypervisor. Industry standard for traditional enterprise density and reliability.</p>
+                        </div>
+                        <div class="bg-teal-50/50 p-4 rounded-lg border border-teal-100">
+                            <h3 class="font-semibold text-teal-900 flex items-center gap-2 text-sm">🚀 SUSE Virtualization (Harvester)</h3>
+                            <p class="text-[13px] text-teal-800 mt-1">Open HCI (KubeVirt/Longhorn). Kubernetes-native virtualization for edge and cloud-native labs.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <div class="chart-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="interactive-matrix" class="mb-12">
+            <h2 class="text-xl font-semibold text-stone-800 mb-4">Technical Comparison Matrix</h2>
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col lg:flex-row">
+                <div class="w-full lg:w-2/3 border-b lg:border-b-0 lg:border-r border-stone-200 flex flex-col">
+                    <div class="bg-stone-50 border-b border-stone-200 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex space-x-1 bg-stone-200/50 p-1 rounded-lg">
+                            <button id="btn-all" class="px-4 py-1.5 text-xs font-bold rounded-md transition-all btn-active">ALL FEATURES</button>
+                            <button id="btn-sim" class="px-4 py-1.5 text-xs font-bold rounded-md transition-all btn-inactive">SIMILARITIES</button>
+                            <button id="btn-diff" class="px-4 py-1.5 text-xs font-bold rounded-md transition-all btn-inactive">DIFFERENCES</button>
+                        </div>
+                        <select id="category-filter" class="text-xs font-bold border-stone-300 rounded-md shadow-sm bg-white p-2 border outline-none">
+                            <option value="all">ALL CATEGORIES</option>
+                            <option value="Architecture">ARCHITECTURE</option>
+                            <option value="Compute">COMPUTE & VMS</option>
+                            <option value="Storage">STORAGE</option>
+                            <option value="Networking">NETWORKING</option>
+                            <option value="Management">MANAGEMENT</option>
+                        </select>
+                    </div>
+                    <div class="overflow-x-auto flex-grow h-[450px] overflow-y-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-stone-100 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="py-3 px-4 text-[10px] font-bold text-stone-600 uppercase tracking-wider border-b border-stone-200">Feature</th>
+                                    <th class="py-3 px-4 text-[10px] font-bold text-indigo-700 uppercase tracking-wider border-b border-stone-200">vSphere</th>
+                                    <th class="py-3 px-4 text-[10px] font-bold text-teal-700 uppercase tracking-wider border-b border-stone-200">SUSE Virtualization (Harvester)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparison-body" class="divide-y divide-stone-100 text-[13px]"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/3 bg-stone-50 p-6 flex flex-col">
+                    <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-4">Architectural Deep Dive</h3>
+                    <div id="detail-panel" class="bg-white border border-stone-200 rounded-lg p-5 shadow-sm flex-grow">
+                        <div class="flex flex-col items-center justify-center h-full text-stone-400 text-center space-y-3">
+                            <span class="text-3xl">ℹ️</span>
+                            <p class="text-sm">Select a feature to view implementation details and trade-offs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-assistant" class="mb-12 bg-stone-900 rounded-xl shadow-2xl border border-stone-800 ai-glow overflow-hidden">
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">✨</span>
+                    <h2 class="text-xl font-bold text-white">Consult the Infrastructure Architect</h2>
+                </div>
+                <p class="text-stone-400 text-sm mb-6 leading-relaxed">
+                    Describe your project environment to get a tailored recommendation or infrastructure-as-code snippets for vSphere or Harvester.
+                </p>
+                <div class="space-y-4">
+                    <textarea id="ai-input" rows="3" class="w-full bg-stone-800 border-stone-700 rounded-lg p-4 text-stone-200 text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all placeholder-stone-600" placeholder="e.g., I'm building an edge lab with 3 nodes for testing CI/CD pipelines. My team knows Kubernetes but has limited budget..."></textarea>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="btn-ai-analyze" class="bg-teal-600 hover:bg-teal-50 text-white font-bold text-xs py-3 px-6 rounded-lg transition-all shadow-lg active:scale-95 disabled:opacity-50">ANALYZE STRATEGY ✨</button>
+                        <button id="btn-ai-code" class="bg-stone-700 hover:bg-stone-600 text-white font-bold text-xs py-3 px-6 rounded-lg transition-all shadow-lg active:scale-95 disabled:opacity-50">GENERATE IAC CODE ✨</button>
+                    </div>
+                </div>
+                <div id="ai-response-container" class="mt-6 hidden">
+                    <div class="bg-stone-800/50 border border-stone-700 rounded-xl p-6 relative min-h-[100px]">
+                        <div id="ai-loading" class="hidden absolute inset-0 bg-stone-800/90 z-10 flex items-center justify-center rounded-xl">
+                            <div class="flex flex-col items-center gap-2 text-teal-400">
+                                <div class="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest loading-pulse">Processing...</span>
+                            </div>
+                        </div>
+                        <div id="ai-error" class="hidden text-red-400 text-xs mb-4 p-3 rounded border border-red-900/50 bg-red-900/10"></div>
+                        <div id="ai-content" class="text-stone-300 text-[13px] leading-relaxed whitespace-pre-wrap font-mono"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t border-stone-200 py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-stone-500">
+            Interactive Technical Comparison | Powered by Gemini AI for Custom Insights
+        </div>
+    </footer>
+
+    <script>
+        const tableData = [
+            { id: 1, category: 'Architecture', feature: 'Hypervisor', vsphere: 'ESXi (Proprietary)', harvester: 'KVM (Open Source)', type: 'difference', detail: 'ESXi is a highly specialized kernel. Harvester uses KVM orchestrated by KubeVirt within a Kubernetes ecosystem.' },
+            { id: 2, category: 'Architecture', feature: 'HCI Logic', vsphere: 'vSAN', harvester: 'Longhorn', type: 'difference', detail: 'vSAN is deeply kernel-integrated. Longhorn is a microservices-based block storage system native to K8s.' },
+            { id: 3, category: 'Compute', feature: 'Live Migration', vsphere: 'vMotion', harvester: 'Supported (KubeVirt)', type: 'similarity', detail: 'Both platforms support live migrating running VMs across physical nodes without downtime.' },
+            { id: 4, category: 'Compute', feature: 'High Availability', vsphere: 'vSphere HA', harvester: 'Native K8s HA', type: 'similarity', detail: 'Automatic restart of VMs on healthy hosts if a physical node fails.' },
+            { id: 5, category: 'Compute', feature: 'OS Support', vsphere: 'Extensive Legacy', harvester: 'Modern OS Focus', type: 'difference', detail: 'vSphere has decades of driver history for old OSes. Harvester focuses on VirtIO-supported modern Linux/Windows.' },
+            { id: 6, category: 'Networking', feature: 'Virtual Switching', vsphere: 'vDS / Standard', harvester: 'VLAN / Multus', type: 'difference', detail: 'vSphere uses proprietary switching layers. Harvester utilizes standard Linux bridges and K8s CNI.' },
+            { id: 7, category: 'Storage', feature: 'External SAN', vsphere: 'FC, iSCSI, NFS', harvester: 'iSCSI, NFS', type: 'similarity', detail: 'Both can mount external storage volumes for VM disks via standard protocols.' },
+            { id: 8, category: 'Management', feature: 'Orchestration', vsphere: 'vCenter', harvester: 'Rancher Integration', type: 'difference', detail: 'vCenter is a central appliance. Harvester is managed as a K8s cluster, often through SUSE Rancher.' },
+            { id: 9, category: 'Automation', feature: 'API Type', vsphere: 'SOAP/REST', harvester: 'K8s CRD (Declarative)', type: 'difference', detail: 'Harvester is configured via YAML manifests, making it ideal for GitOps/ArgoCD workflows.' }
+        ];
+
+        let currentFilter = 'all';
+        let currentCategory = 'all';
+        let selectedRowId = null;
+
+        const tbody = document.getElementById('comparison-body');
+        const detailPanel = document.getElementById('detail-panel');
+
+        function updateFilterButtons() {
+            const btns = {
+                'all': document.getElementById('btn-all'),
+                'sim': document.getElementById('btn-sim'),
+                'diff': document.getElementById('btn-diff')
+            };
+            Object.keys(btns).forEach(key => {
+                if (key === currentFilter) {
+                    btns[key].classList.add('btn-active');
+                    btns[key].classList.remove('btn-inactive');
+                } else {
+                    btns[key].classList.remove('btn-active');
+                    btns[key].classList.add('btn-inactive');
+                }
+            });
+        }
+
+        function renderTable() {
+            tbody.innerHTML = '';
+            const filtered = tableData.filter(item => {
+                const matchType = currentFilter === 'all' || 
+                                 (currentFilter === 'sim' && item.type === 'similarity') || 
+                                 (currentFilter === 'diff' && item.type === 'difference');
+                const matchCat = currentCategory === 'all' || item.category === currentCategory;
+                return matchType && matchCat;
+            });
+
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = `row-hover transition-colors border-l-4 ${item.id === selectedRowId ? 'selected-row' : 'border-transparent'}`;
+                tr.onclick = () => selectRow(item);
+                tr.innerHTML = `
+                    <td class="py-3 px-4 border-b border-stone-100 font-medium text-stone-800">${item.feature}</td>
+                    <td class="py-3 px-4 border-b border-stone-100 text-stone-600">${item.vsphere}</td>
+                    <td class="py-3 px-4 border-b border-stone-100 text-stone-600">${item.harvester}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selectRow(item) {
+            selectedRowId = item.id;
+            renderTable();
+            detailPanel.innerHTML = `
+                <div class="h-full flex flex-col">
+                    <span class="text-[10px] font-black tracking-widest text-teal-600 uppercase mb-1">${item.category}</span>
+                    <h4 class="text-lg font-bold text-stone-800 mb-3">${item.feature}</h4>
+                    <div class="bg-stone-50 p-3 rounded mb-4 text-[12px] border border-stone-200">
+                        <strong class="text-stone-400 block mb-1">Architecture Comparison:</strong>
+                        ${item.detail}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-[11px]">
+                        <div class="bg-indigo-50/50 p-2 rounded">
+                            <span class="font-bold text-indigo-700 block">vSphere</span>
+                            ${item.vsphere}
+                        </div>
+                        <div class="bg-teal-50/50 p-2 rounded">
+                            <span class="font-bold text-teal-700 block">Harvester</span>
+                            ${item.harvester}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('btn-all').onclick = () => { currentFilter = 'all'; updateFilterButtons(); renderTable(); };
+        document.getElementById('btn-sim').onclick = () => { currentFilter = 'sim'; updateFilterButtons(); renderTable(); };
+        document.getElementById('btn-diff').onclick = () => { currentFilter = 'diff'; updateFilterButtons(); renderTable(); };
+        document.getElementById('category-filter').onchange = (e) => { currentCategory = e.target.value; renderTable(); };
+
+        // Chart.js Setup
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Native K8s', 'Legacy OS', 'Automation', 'Ecosystem', 'Edge Focus', 'Open Source'],
+                datasets: [
+                    { label: 'vSphere', data: [4, 10, 7, 10, 6, 2], backgroundColor: 'rgba(79, 70, 229, 0.1)', borderColor: '#4f46e5', borderWidth: 2 },
+                    { label: 'SUSE Virtualization (Harvester)', data: [10, 7, 10, 6, 9, 10], backgroundColor: 'rgba(15, 118, 110, 0.1)', borderColor: '#0f766e', borderWidth: 2 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { r: { ticks: { display: false } } } }
+        });
+
+        // Gemini Integration
+        const apiKey = "";
+        const aiContainer = document.getElementById('ai-response-container');
+        const aiContent = document.getElementById('ai-content');
+        const aiLoading = document.getElementById('ai-loading');
+        const aiError = document.getElementById('ai-error');
+
+        async function consultAI(prompt, systemMsg) {
+            aiContainer.classList.remove('hidden');
+            aiLoading.classList.remove('hidden');
+            aiError.classList.add('hidden');
+            aiContent.textContent = '';
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemMsg }] }
+            };
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error(`API error: ${res.status}`);
+                    const json = await res.json();
+                    aiContent.textContent = json.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
+                    aiLoading.classList.add('hidden');
+                    return;
+                } catch (e) {
+                    if (i === 4) {
+                        aiError.textContent = "Architect Offline: Maximum retries reached. Check your description and try again.";
+                        aiError.classList.remove('hidden');
+                        aiLoading.classList.add('hidden');
+                    } else {
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2;
+                    }
+                }
+            }
+        }
+
+        document.getElementById('btn-ai-analyze').onclick = () => {
+            const val = document.getElementById('ai-input').value.trim() || "Provide a comparison for a generic edge data center.";
+            consultAI(val, "You are a Cloud Infrastructure Architect. Provide a concise strategic analysis comparing vSphere and Harvester based on the user's specific scenario. Use bullet points for pros/cons.");
+        };
+
+        document.getElementById('btn-ai-code').onclick = () => {
+            const val = document.getElementById('ai-input').value.trim() || "Standard Harvester VM";
+            consultAI(`Create deployment code for: ${val}`, "You are a DevOps Engineer. Provide clean, functional code snippets (Terraform, YAML, or Bash) for deploying infrastructure on Harvester or vSphere based on the request.");
+        };
+
+        renderTable();
+    </script>
+</body>
+</html>
